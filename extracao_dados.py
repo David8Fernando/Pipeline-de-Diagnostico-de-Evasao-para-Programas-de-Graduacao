@@ -1,16 +1,44 @@
 import requests
+import json
+from datetime import datetime
 
+# ===== CONFIG =====
 project_id = "e21f7967-1182-44a9-b29e-6e8833f294e7"
 token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYXZpZHBlcmVpcmEiLCJ0eXBlIjoiYXBpX2tleSIsImV4cCI6MTc3NzQ2ODEyOX0.LYI12VZj4Cq4rXAZAuE0OzE1gRe3WkjvTTeNvz3JXN0"
-url = f"https://api.datamission.com.br/projects/{project_id}/dataset?format=parquet"
 
+url = f"https://api.datamission.com.br/projects/{project_id}/dataset?format=csv"
 headers = {"Authorization": f"Bearer {token}"}
 
+# ===== REQUEST =====
 response = requests.get(url, headers=headers)
 response.raise_for_status()
 
-# Salva o arquivo localmente
-with open(f"dataset_{project_id}.parquet", "wb") as file:
+# ===== TIMESTAMP (pra versionamento) =====
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# ===== SALVAR CSV =====
+csv_filename = f"dataset_{project_id}_{timestamp}.csv"
+
+with open(csv_filename, "wb") as file:
     file.write(response.content)
 
-print("Download concluído com sucesso!")
+# ===== CAPTURAR HEADERS =====
+response_headers = dict(response.headers)
+
+# ===== SALVAR METADADOS =====
+metadata = {
+    "project_id": project_id,
+    "download_timestamp": timestamp,
+    "url": url,
+    "status_code": response.status_code,
+    "headers": response_headers
+}
+
+metadata_filename = f"metadata_{project_id}_{timestamp}.json"
+
+with open(metadata_filename, "w", encoding="utf-8") as f:
+    json.dump(metadata, f, indent=4, ensure_ascii=False)
+
+# ===== LOG =====
+print(f"✅ CSV salvo em: {csv_filename}")
+print(f"📄 Metadados salvos em: {metadata_filename}")
