@@ -1,10 +1,18 @@
 import requests
 import json
 from datetime import datetime
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
+token = os.getenv("DATAMISSION_API_TOKEN")
+
+if not token:
+    raise ValueError("Token de API não encontrado. Verifique o arquivo .env e a variável DATAMISSION_API_TOKEN.")
+
 
 # ===== CONFIG =====
 project_id = "e21f7967-1182-44a9-b29e-6e8833f294e7"
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkYXZpZHBlcmVpcmEiLCJ0eXBlIjoiYXBpX2tleSIsImV4cCI6MTc3NzQ2ODEyOX0.LYI12VZj4Cq4rXAZAuE0OzE1gRe3WkjvTTeNvz3JXN0"
 
 url = f"https://api.datamission.com.br/projects/{project_id}/dataset?format=csv"
 headers = {"Authorization": f"Bearer {token}"}
