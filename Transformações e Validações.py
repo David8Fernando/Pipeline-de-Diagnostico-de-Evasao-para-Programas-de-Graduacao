@@ -6,6 +6,7 @@ from src.limpeza import limpar_dados
 from src.validacao import validar_dataset
 from src.transformacao import criar_metricas, tabelas_intermediarias_frequencia, tabelas_intermediarias_matricula, tabelas_intermediarias_desempenho
 from src.carga_dados_sql import carregar_dados_consolidados_sql 
+from src.indicadores import gerar_indicadores
 DATA_PATH = Path("data")
 
 
@@ -45,19 +46,23 @@ def main():
     #4 - Transformação
     df_final = criar_metricas(df)
 
-    #5 - Tabelas intermediárias
+    # 5. Indicadores 
+    df_indicadores = gerar_indicadores(df)
+
+    #6 - Tabelas intermediárias
     df_matricula = tabelas_intermediarias_matricula(df)
     df_frequencia = tabelas_intermediarias_frequencia(df)
     df_desempenho = tabelas_intermediarias_desempenho(df)
 
-    #5 - Timestamp para rastreabilidade
+    #7 - Timestamp para rastreabilidade
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    #6 - Exportação para PowerBI
+    #8 - Exportação para PowerBI
     df_final.to_parquet(OUTPUT_PATH / f"consolidado_{timestamp}.parquet", index=False)
     df_matricula.to_parquet(OUTPUT_PATH / f"matricula_{timestamp}.parquet", index=False)
     df_frequencia.to_parquet(OUTPUT_PATH / f"frequencia_{timestamp}.parquet", index=False)
     df_desempenho.to_parquet(OUTPUT_PATH / f"desempenho_{timestamp}.parquet", index=False)
+    df_indicadores.to_parquet(OUTPUT_PATH / f"indicadores_{timestamp}.parquet",index=False)
 
     #7 - Exportação para SQL 
     df_consolidado_sql = carregar_dados_consolidados_sql(df)
