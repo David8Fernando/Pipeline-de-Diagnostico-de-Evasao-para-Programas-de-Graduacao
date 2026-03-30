@@ -2,6 +2,7 @@ from pathlib import Path
 from src.ingestao import carregar_dados
 from src.limpeza import limpar_dados
 from src.transformacao import criar_metricas, tabelas_intermediarias_frequencia, tabelas_intermediarias_matricula, tabelas_intermediarias_desempenho
+from src.carga_dados_sql import carregar_dados_consolidados_sql 
 DATA_PATH = Path("data")
 #C:\Users\david\OneDrive\Documents\46 - Portifolio\01 - Engenharia de dados\data
 def main():
@@ -42,9 +43,11 @@ def main():
     df_frequencia.to_parquet(OUTPUT_PATH / "frequencia.parquet", index=False)
     df_desempenho.to_parquet(OUTPUT_PATH / "desempenho.parquet", index=False)
 
-
+    df_consolidado_sql = carregar_dados_consolidados_sql(df)
 
     print("Pipeline executado com sucesso!")
+    print("Consolidado SQL:")
+    print(df_consolidado_sql)
 
 if __name__ == "__main__":
     main()
